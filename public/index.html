@@ -1,0 +1,817 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>🏋️ AI Fitness Coach - Premium</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    html, body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', sans-serif;
+      color: #1a1a1a;
+      background: #ffffff;
+      height: 100%;
+    }
+
+    /* NAVIGATION */
+    nav {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 70px;
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(10px);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0 40px;
+      z-index: 1000;
+      box-shadow: 0 2px 20px rgba(0, 0, 0, 0.05);
+    }
+
+    nav .logo {
+      font-size: 1.3em;
+      font-weight: 800;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      letter-spacing: -0.5px;
+    }
+
+    nav .nav-menu {
+      display: flex;
+      gap: 40px;
+      list-style: none;
+    }
+
+    nav a {
+      text-decoration: none;
+      color: #1a1a1a;
+      font-weight: 500;
+      font-size: 0.95em;
+      transition: color 0.3s;
+    }
+
+    nav a:hover {
+      color: #667eea;
+    }
+
+    /* HERO SECTION */
+    .hero {
+      position: relative;
+      height: 100vh;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-top: 70px;
+    }
+
+    .hero::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 600"><defs><pattern id="dots" x="0" y="0" width="40" height="40" patternUnits="userSpaceOnUse"><circle cx="20" cy="20" r="2" fill="rgba(255,255,255,0.1)"/></pattern></defs><rect fill="url(%23dots)" width="1200" height="600"/></svg>');
+      opacity: 0.5;
+    }
+
+    .hero-content {
+      position: relative;
+      z-index: 2;
+      max-width: 700px;
+      color: white;
+      text-align: center;
+      animation: fadeInUp 0.8s ease-out;
+    }
+
+    .hero-tag {
+      font-size: 0.85em;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      opacity: 0.9;
+      margin-bottom: 20px;
+      display: inline-block;
+      background: rgba(255, 255, 255, 0.2);
+      padding: 8px 16px;
+      border-radius: 50px;
+      backdrop-filter: blur(10px);
+    }
+
+    .hero h1 {
+      font-size: 3.5em;
+      font-weight: 800;
+      line-height: 1.1;
+      margin-bottom: 20px;
+      letter-spacing: -1px;
+    }
+
+    .hero p {
+      font-size: 1.2em;
+      opacity: 0.95;
+      margin-bottom: 40px;
+      line-height: 1.6;
+    }
+
+    .hero-buttons {
+      display: flex;
+      gap: 15px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      padding: 14px 32px;
+      border: none;
+      border-radius: 50px;
+      font-weight: 600;
+      font-size: 1em;
+      cursor: pointer;
+      transition: all 0.3s;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .btn-primary {
+      background: white;
+      color: #667eea;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 15px 40px rgba(0, 0, 0, 0.3);
+    }
+
+    .btn-secondary {
+      background: rgba(255, 255, 255, 0.2);
+      color: white;
+      border: 2px solid white;
+      backdrop-filter: blur(10px);
+    }
+
+    .btn-secondary:hover {
+      background: rgba(255, 255, 255, 0.3);
+    }
+
+    /* APP SECTION */
+    .app-section {
+      padding: 80px 40px;
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+
+    .section-header {
+      text-align: center;
+      margin-bottom: 60px;
+    }
+
+    .section-tag {
+      font-size: 0.85em;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: #667eea;
+      margin-bottom: 15px;
+    }
+
+    .section-header h2 {
+      font-size: 2.5em;
+      font-weight: 800;
+      margin-bottom: 20px;
+      line-height: 1.2;
+    }
+
+    .section-header p {
+      font-size: 1.1em;
+      color: #666;
+      max-width: 500px;
+      margin: 0 auto;
+    }
+
+    /* TABS */
+    .app-container {
+      background: white;
+      border-radius: 20px;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.08);
+      overflow: hidden;
+    }
+
+    .tabs {
+      display: flex;
+      border-bottom: 1px solid #f0f0f0;
+      background: #f9f9f9;
+    }
+
+    .tab-btn {
+      flex: 1;
+      padding: 20px;
+      background: none;
+      border: none;
+      font-size: 1em;
+      font-weight: 600;
+      cursor: pointer;
+      color: #999;
+      transition: all 0.3s;
+      border-bottom: 3px solid transparent;
+    }
+
+    .tab-btn:hover {
+      color: #667eea;
+    }
+
+    .tab-btn.active {
+      color: #667eea;
+      border-bottom-color: #667eea;
+      background: white;
+    }
+
+    .tab-content {
+      display: none;
+      padding: 40px;
+      animation: fadeIn 0.3s ease-out;
+    }
+
+    .tab-content.active {
+      display: block;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(30px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    /* FORM STYLES */
+    .form-group {
+      margin-bottom: 20px;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: 600;
+      color: #1a1a1a;
+      font-size: 0.95em;
+    }
+
+    input, select, textarea {
+      width: 100%;
+      padding: 12px 16px;
+      border: 2px solid #f0f0f0;
+      border-radius: 10px;
+      font-size: 0.95em;
+      font-family: inherit;
+      transition: all 0.3s;
+    }
+
+    input:focus, select:focus, textarea:focus {
+      outline: none;
+      border-color: #667eea;
+      box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    }
+
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+    }
+
+    button[type="submit"] {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 14px 32px;
+      border: none;
+      border-radius: 10px;
+      font-weight: 600;
+      font-size: 1em;
+      cursor: pointer;
+      transition: all 0.3s;
+      width: 100%;
+    }
+
+    button[type="submit"]:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 25px rgba(102, 126, 234, 0.3);
+    }
+
+    /* FEEDBACK */
+    .feedback {
+      background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
+      border-left: 4px solid #667eea;
+      padding: 20px;
+      margin-top: 20px;
+      border-radius: 10px;
+      line-height: 1.6;
+      color: #333;
+    }
+
+    .feedback.success {
+      background: linear-gradient(135deg, rgba(40, 167, 69, 0.1) 0%, rgba(75, 192, 75, 0.1) 100%);
+      border-left-color: #28a745;
+      color: #155724;
+    }
+
+    /* STATS GRID */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 20px;
+      margin: 30px 0;
+    }
+
+    .stat-card {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 25px;
+      border-radius: 15px;
+      text-align: center;
+    }
+
+    .stat-card h4 {
+      font-size: 0.85em;
+      opacity: 0.9;
+      margin-bottom: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .stat-card .value {
+      font-size: 2.2em;
+      font-weight: 800;
+    }
+
+    /* CALISTHENICS CARDS */
+    .calisthenics-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 20px;
+      margin: 20px 0;
+    }
+
+    .calisthenics-card {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 25px;
+      border-radius: 15px;
+      text-align: center;
+    }
+
+    .calisthenics-card h3 {
+      margin-bottom: 15px;
+      font-size: 1.1em;
+    }
+
+    .calisthenics-card input {
+      background: rgba(255, 255, 255, 0.15);
+      border: 2px solid rgba(255, 255, 255, 0.3);
+      color: white;
+      text-align: center;
+      padding: 10px;
+      margin-bottom: 10px;
+    }
+
+    .calisthenics-card input::placeholder {
+      color: rgba(255, 255, 255, 0.6);
+    }
+
+    .progress-bar {
+      background: rgba(255, 255, 255, 0.2);
+      height: 8px;
+      border-radius: 4px;
+      margin: 15px 0;
+      overflow: hidden;
+    }
+
+    .progress-fill {
+      background: white;
+      height: 100%;
+      border-radius: 4px;
+      width: 45%;
+      transition: width 0.3s;
+    }
+
+    .progress-text {
+      font-size: 0.85em;
+      opacity: 0.9;
+    }
+
+    /* CHART */
+    .chart-container {
+      position: relative;
+      height: 300px;
+      margin: 30px 0;
+      background: #f9f9f9;
+      border-radius: 15px;
+      padding: 20px;
+    }
+
+    /* RESPONSIVE */
+    @media (max-width: 768px) {
+      .hero h1 {
+        font-size: 2.2em;
+      }
+
+      nav {
+        padding: 0 20px;
+      }
+
+      nav .nav-menu {
+        display: none;
+      }
+
+      .form-row {
+        grid-template-columns: 1fr;
+      }
+
+      .tabs {
+        flex-wrap: wrap;
+      }
+
+      .tab-btn {
+        flex: 0 1 auto;
+        padding: 15px;
+      }
+
+      .section-header h2 {
+        font-size: 1.8em;
+      }
+
+      .app-section {
+        padding: 40px 20px;
+      }
+
+      .tab-content {
+        padding: 20px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- NAVIGATION -->
+  <nav>
+    <div class="logo">🏋️ Fitness Coach</div>
+    <ul class="nav-menu">
+      <li><a href="#home">Home</a></li>
+      <li><a href="#features">Features</a></li>
+      <li><a href="#app">App</a></li>
+    </ul>
+  </nav>
+
+  <!-- HERO SECTION -->
+  <section class="hero" id="home">
+    <div class="hero-content">
+      <div class="hero-tag">🚀 AI-Powered Training</div>
+      <h1>Level Up Your Performance</h1>
+      <p>Erreiche deine Fitness-Ziele mit intelligenter KI-Unterstützung. Trainieren, tracken und analysieren in einer App.</p>
+      <div class="hero-buttons">
+        <button class="btn btn-primary" onclick="scrollToApp()">
+          Start Now
+          <span>→</span>
+        </button>
+        <button class="btn btn-secondary">Learn More</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- APP SECTION -->
+  <section class="app-section" id="app">
+    <div class="section-header">
+      <div class="section-tag">💪 Deine Fitness App</div>
+      <h2>Alles was du zum Trainieren brauchst</h2>
+      <p>Logging, Analyse und intelligente Progression-Tipps von deinem persönlichen AI Coach</p>
+    </div>
+
+    <div class="app-container">
+      <!-- TABS -->
+      <div class="tabs">
+        <button class="tab-btn active" onclick="switchTab('training')">💪 Training</button>
+        <button class="tab-btn" onclick="switchTab('calisthenics')">🤸 Calisthenics</button>
+        <button class="tab-btn" onclick="switchTab('ernährung')">🍗 Ernährung</button>
+        <button class="tab-btn" onclick="switchTab('dashboard')">📊 Dashboard</button>
+      </div>
+
+      <!-- TAB 1: TRAINING -->
+      <div id="training" class="tab-content active">
+        <h2>Trainings Logger</h2>
+        <form onsubmit="handleTraining(event)">
+          <div class="form-group">
+            <label>Trainings-Tag</label>
+            <select required>
+              <option value="">-- Wähle --</option>
+              <option value="Brust/Trizeps">Brust/Trizeps</option>
+              <option value="Rücken/Bizeps">Rücken/Bizeps</option>
+              <option value="Beine">Beine</option>
+              <option value="Athletic">Athletic</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label>Übung</label>
+            <input type="text" placeholder="z.B. Bankdrücken" required>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label>Gewicht (kg)</label>
+              <input type="number" placeholder="50" step="0.5" required>
+            </div>
+            <div class="form-group">
+              <label>Reps</label>
+              <input type="number" placeholder="7" required>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label>Sets</label>
+              <input type="number" placeholder="3" required>
+            </div>
+            <div class="form-group">
+              <label>RPE (1-10)</label>
+              <input type="number" placeholder="8" min="1" max="10">
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label>Notiz</label>
+            <textarea placeholder="z.B. Gutes Gefühl..." style="min-height: 80px;"></textarea>
+          </div>
+
+          <button type="submit">📝 Training Loggen</button>
+        </form>
+
+        <div id="training-feedback"></div>
+      </div>
+
+      <!-- TAB 2: CALISTHENICS -->
+      <div id="calisthenics" class="tab-content">
+        <h2>Calisthenics Progression</h2>
+        
+        <div class="calisthenics-grid">
+          <div class="calisthenics-card">
+            <h3>🤸 Handstand</h3>
+            <input type="number" placeholder="Sekunden" min="0">
+            <button class="btn btn-primary" onclick="updateCalisthenics('handstand')" style="width: 100%; padding: 10px;">Update</button>
+            <div class="progress-bar"><div class="progress-fill" style="width: 35%;"></div></div>
+            <div class="progress-text">21 / 60 Sekunden</div>
+          </div>
+
+          <div class="calisthenics-card">
+            <h3>🪑 L-Sit</h3>
+            <input type="number" placeholder="Sekunden" min="0">
+            <button class="btn btn-primary" onclick="updateCalisthenics('lsit')" style="width: 100%; padding: 10px;">Update</button>
+            <div class="progress-bar"><div class="progress-fill" style="width: 40%;"></div></div>
+            <div class="progress-text">12 / 30 Sekunden</div>
+          </div>
+
+          <div class="calisthenics-card">
+            <h3>💪 Klimmzüge</h3>
+            <input type="number" placeholder="Wiederholungen" min="0">
+            <button class="btn btn-primary" onclick="updateCalisthenics('klimmzüge')" style="width: 100%; padding: 10px;">Update</button>
+            <div class="progress-bar"><div class="progress-fill" style="width: 67%;"></div></div>
+            <div class="progress-text">10 / 15 Reps</div>
+          </div>
+
+          <div class="calisthenics-card">
+            <h3>📍 Dips</h3>
+            <input type="number" placeholder="Wiederholungen" min="0">
+            <button class="btn btn-primary" onclick="updateCalisthenics('dips')" style="width: 100%; padding: 10px;">Update</button>
+            <div class="progress-bar"><div class="progress-fill" style="width: 60%;"></div></div>
+            <div class="progress-text">12 / 20 Reps</div>
+          </div>
+        </div>
+
+        <h3 style="margin-top: 40px;">Dein Fortschritt</h3>
+        <div class="chart-container">
+          <canvas id="calisthenicsChart"></canvas>
+        </div>
+      </div>
+
+      <!-- TAB 3: ERNÄHRUNG -->
+      <div id="ernährung" class="tab-content">
+        <h2>Ernährung Logger</h2>
+        <form onsubmit="handleErnährung(event)">
+          <div class="form-group">
+            <label>Mahlzeit / Getränk</label>
+            <textarea placeholder="z.B. 200g Hähnchen + Reis..." required style="min-height: 80px;"></textarea>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label>Protein (g)</label>
+              <input type="number" placeholder="45" step="0.5" required>
+            </div>
+            <div class="form-group">
+              <label>Kalorien (kcal)</label>
+              <input type="number" placeholder="600" step="10" required>
+            </div>
+          </div>
+
+          <button type="submit">🍽️ Mahlzeit Loggen</button>
+        </form>
+
+        <div id="ernährung-feedback"></div>
+
+        <h3 style="margin-top: 40px;">Heute's Ernährung</h3>
+        <div class="stats-grid">
+          <div class="stat-card">
+            <h4>Protein</h4>
+            <div class="value">145g</div>
+            <small>Ziel: 210g</small>
+          </div>
+          <div class="stat-card">
+            <h4>Kalorien</h4>
+            <div class="value">1850</div>
+            <small>Ziel: 2500</small>
+          </div>
+        </div>
+
+        <div class="chart-container" style="margin-top: 20px;">
+          <canvas id="nutritionChart"></canvas>
+        </div>
+      </div>
+
+      <!-- TAB 4: DASHBOARD -->
+      <div id="dashboard" class="tab-content">
+        <h2>Deine Statistiken</h2>
+        
+        <div class="stats-grid">
+          <div class="stat-card">
+            <h4>Trainings</h4>
+            <div class="value">4</div>
+            <small>Diese Woche</small>
+          </div>
+          <div class="stat-card">
+            <h4>Tonnage</h4>
+            <div class="value">3.4k</div>
+            <small>Gesamt</small>
+          </div>
+          <div class="stat-card">
+            <h4>Protein Ø</h4>
+            <div class="value">185g</div>
+            <small>Pro Tag</small>
+          </div>
+          <div class="stat-card">
+            <h4>Kalorien Ø</h4>
+            <div class="value">2380</div>
+            <small>Pro Tag</small>
+          </div>
+        </div>
+
+        <h3 style="margin-top: 40px;">Kraft-Entwicklung</h3>
+        <div class="chart-container">
+          <canvas id="strengthChart"></canvas>
+        </div>
+
+        <h3 style="margin-top: 40px;">💡 Analyse</h3>
+        <div class="feedback">
+          <p><strong>Großartig!</strong> Diese Woche machst du guten Fortschritt:</p>
+          <ul style="margin-left: 20px; margin-top: 10px;">
+            <li>Tonnage ist um 8% gestiegen!</li>
+            <li>Klimmzüge: 8 → 10 Reps (+25%)</li>
+            <li>Protein: noch 25g bis zum Ziel</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <script>
+    function switchTab(tabName) {
+      const tabs = document.querySelectorAll('.tab-content');
+      const btns = document.querySelectorAll('.tab-btn');
+
+      tabs.forEach(tab => tab.classList.remove('active'));
+      btns.forEach(btn => btn.classList.remove('active'));
+
+      document.getElementById(tabName).classList.add('active');
+      event.target.classList.add('active');
+
+      if (tabName === 'calisthenics' && !window.calisthenicsChart) {
+        setTimeout(initCalisthenicsChart, 100);
+      }
+      if (tabName === 'dashboard' && !window.strengthChart) {
+        setTimeout(initStrengthChart, 100);
+      }
+    }
+
+    function scrollToApp() {
+      document.getElementById('app').scrollIntoView({ behavior: 'smooth' });
+    }
+
+    function handleTraining(e) {
+      e.preventDefault();
+      document.getElementById('training-feedback').innerHTML = `
+        <div class="feedback success">
+          <strong>✅ Training geloggt!</strong>
+          <p><strong>Tonnage:</strong> 1050kg</p>
+          <p style="margin-top: 10px;"><strong>💡 Agent Feedback:</strong> Sehr gute Leistung! Du bist 2.5kg stärker als letzte Woche. Nächstes Mal versuche 52.5kg. 💪</p>
+        </div>
+      `;
+    }
+
+    function handleErnährung(e) {
+      e.preventDefault();
+      document.getElementById('ernährung-feedback').innerHTML = `
+        <div class="feedback success">
+          <strong>✅ Mahlzeit geloggt!</strong>
+          <p style="margin-top: 10px;"><strong>💡 Agent Feedback:</strong> Dir fehlen noch 35g Protein. Ein Shake vor dem Schlafengehen würde dir über dein Ziel helfen! 🥤</p>
+        </div>
+      `;
+    }
+
+    function updateCalisthenics(type) {
+      alert('✅ Update gespeichert!');
+    }
+
+    function initCalisthenicsChart() {
+      const ctx = document.getElementById('calisthenicsChart').getContext('2d');
+      new Chart(ctx, {
+        type: 'radar',
+        data: {
+          labels: ['Handstand', 'L-Sit', 'Klimmzüge', 'Dips'],
+          datasets: [{
+            label: 'Aktuell',
+            data: [21, 12, 10, 12],
+            borderColor: '#667eea',
+            backgroundColor: 'rgba(102, 126, 234, 0.15)',
+            pointBackgroundColor: '#667eea'
+          },
+          {
+            label: 'Ziel',
+            data: [60, 30, 15, 20],
+            borderColor: '#764ba2',
+            backgroundColor: 'rgba(118, 75, 162, 0.05)',
+            borderDash: [5, 5],
+            pointBackgroundColor: '#764ba2'
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { position: 'bottom' }
+          }
+        }
+      });
+      window.calisthenicsChart = true;
+    }
+
+    function initStrengthChart() {
+      const ctx = document.getElementById('strengthChart').getContext('2d');
+      new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: ['Session 1', 'Session 2', 'Session 3', 'Session 4', 'Session 5', 'Session 6', 'Session 7', 'Session 8', 'Session 9', 'Session 10'],
+          datasets: [{
+            label: 'Tonnage (kg)',
+            data: [850, 920, 1050, 1100, 1150, 1200, 1250, 1320, 1380, 1450],
+            borderColor: '#667eea',
+            backgroundColor: 'rgba(102, 126, 234, 0.1)',
+            tension: 0.4,
+            fill: true,
+            pointBackgroundColor: '#667eea',
+            pointBorderColor: '#fff',
+            borderWidth: 3
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { position: 'bottom' }
+          },
+          scales: {
+            y: { beginAtZero: true }
+          }
+        }
+      });
+      window.strengthChart = true;
+    }
+  </script>
+</body>
+</html>
